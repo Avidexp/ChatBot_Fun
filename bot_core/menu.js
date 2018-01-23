@@ -49,7 +49,7 @@ init = (bot, builder) => {
                         break;
             }
         }, function(session){
-            if(sesion.userData.auth){
+            if(session.userData.auth){
                 session.replaceDialog('/membersMenu');
             } else {
                 session.replaceDialog('/guestMenu');
@@ -61,20 +61,4 @@ init = (bot, builder) => {
     
 
 
-    bot.dialog('/new_employee',[
-        function(session){
-            builder.Prompts.choice(session, 'Choose an option:', 'New employee|Sick day|Logout|Quit');
-        }, function (session, results){
-            builder.Prompts.text(sesion, "Are you sure you want to create a new Employee?");
-        }
-    , function(session, results, next){
-        if(results.response != 'yes' || results.response != "Yes"){
-            session.replaceDialog('/membersMenu');
-        } else {
-            session.send("Creating new Employee..");
-            session.send("Is there anything else I can help you with?");
-            session.replaceDialog('/memnersMenu');
-        }
-    }
-])
 }

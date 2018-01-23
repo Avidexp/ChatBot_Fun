@@ -114,7 +114,51 @@ bot.dialog('/login',[
     }
 ]);
 
+bot.dialog('/new_employee', [
+    function(session){
+        //Check if employee is admin
+        if(session.userData.admin){
+            builder.Prompts.text(session, 'Enter new employee username');
+        } else {
+            session.replaceDialog('/admin_auth');
+        }
+    },
+    function (session, results, next){
+        session.userData.new_username = results.response;
+        builder.Prompts.text(session, 'Enter new employee First name');
+    },
+    function (session, results, next){
+        session.userData.new_firstName = results.response;
+        builder.Prompts.text(session, 'Enter new employee Last Name');
+    },
+    function (session, results, next){
+        session.userData.new_lastName = results.response;
+        builder.Prompts.text(session, 'Enter new employee password');
+    },
+    function(session, results){
+        session.userData.new_employee_password = crypto.createHash('md5').update(results.response).digest('hex');
+        //save employee to DB. this should be done in the system
+        system.newEmployee(session);
+    }
+]);
 
+bot.dialog('/admin_auth', [
+    function(session){
+        builder.Prompts.text(session, 'Enter your admin password');
+    },
+    function(session, results){
+        //encrypt password
+        var adminPassword= results.response;
+        //simple authentication
+        var auth = system.adminAuth(adminPassword);
+        if(auth){
+            session.userData.admin = true;
+            session.replaceDialog('/new_employee');
+        } else {
+            session.endDialog('Sorry, your password is incorrect');
+        }
+    }
+])
 
 
 

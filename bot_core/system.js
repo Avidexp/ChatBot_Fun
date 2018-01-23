@@ -1,5 +1,3 @@
-
-
 var mysql = require('../node_modules/mysql');
 
 
@@ -10,13 +8,24 @@ var mysqlConfig = {
     database: 'hr'
 };
 
-
+var adminPassword = 'admin';
 var connection;
 
-module.exports = function(){
+module.exports = function() {
     this.connectToDB = connectToDB;
     this.authentication = authentication;
+    this.adminAuth = adminAuth;
+    this.newEmployee = newEmployee;
 }
+
+adminAuth = function(password) {
+    if (adminPassword === password){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 connectToDB = function() {
     connection = mysql.createConnection(mysqlConfig);
 
@@ -79,3 +88,34 @@ authentication = function (session){
     
     });
 };
+
+adminAuth = function(password){
+    if(adminPassword === password){
+        return true;
+    } else {
+        return false;
+    }
+};
+
+newEmployee = function(session){
+    connection.query('SELECT id FROM employees WHERE username = ? LIMIT 1', [session.userData.new_username],
+function(err, results, fields){
+    if(!err){
+if(results.length){
+    session.send('Username is taken');
+} else {
+    let newEmployee = {username: session.userData.new_username,password: session.userData.new_employee_password, first_name:session.userData.new_firstName, last_name:session.userData.new_lastName};
+    console.log(newEmployee);
+    connection.query('INSERT INTO employees SET ?', newEmployee, function(err, res){
+        if(err){
+            session.send("Error: %s", err);
+        } 
+        console.log(res);
+        session.endDialog("New employee ID: %s", res.insertId);
+    })
+}
+    } else {
+        session.send("Error: %s", err);
+    }
+});
+}
