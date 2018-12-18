@@ -4,7 +4,7 @@ var mysql = require('../node_modules/mysql');
 var mysqlConfig = {
     host: 'localhost',
     user:'root',
-    password: 'smile0759',
+    password: 'xxxx',
     database: 'hr'
 };
 
